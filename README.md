@@ -12,6 +12,7 @@ No cleaning of the created files is done, you must handle that.
 
 
 **ecowitt-upload.php**
+
 This PHP program is the connector needed to receive the Ecowitt Data.
 
 It must be called by the gateway and create 2 files under the data folder:
@@ -34,6 +35,7 @@ Security settings:
 If you do not wish to integrate data in a WS40 suitable format (meteobridge realtime) you must comment the last line "//require __DIR__ . '/generate-realtime.php';"
 
 **generate-realtime.php**
+
 This PHP program is the realtime.txt file generator.
 
 It take the file latest.json => the latest received data from Ecowitt Gateway in json format
