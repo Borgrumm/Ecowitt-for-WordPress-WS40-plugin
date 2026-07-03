@@ -11,7 +11,7 @@ They create 2 folder if they does not exist:
 No cleaning of the created files is done, you must handle that.
 
 
-**ecowitt-upload.php
+##ecowitt-upload.php
 
 This PHP program is the connector needed to receive the Ecowitt Data.
 
@@ -34,7 +34,7 @@ Security settings:
 
 If you do not wish to integrate data in a WS40 suitable format (meteobridge realtime) you must comment the last line "//require __DIR__ . '/generate-realtime.php';"
 
-**generate-realtime.php
+##generate-realtime.php
 
 This PHP program is the realtime.txt file generator.
 
