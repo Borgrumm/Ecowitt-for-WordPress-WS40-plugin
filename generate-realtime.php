@@ -19,11 +19,13 @@ The advantage of this second option is that the realtime.txt file is updated on 
 
 *******************************************************************************
 Version:
-    1.0 :   2026-07-03  First Release
+    1.01  :  2026-07-04  Minor correction for loging purpose
+    1.00  :  2026-07-03  First Release
 
 */
 
 declare(strict_types=1);
+namespace RocciaRosa\Generate_Realtime;
 
 date_default_timezone_set('Europe/Paris');
 
@@ -54,6 +56,8 @@ if (!is_array($data)) {
     log_action("generate-realtime - latest.json invalide");
     exit("latest.json invalide\n");
 }
+
+log_action("generate-realtime - parsing latest.json");
 
 $m = $data['metric'] ?? [];
 $r = $data['raw'] ?? [];
