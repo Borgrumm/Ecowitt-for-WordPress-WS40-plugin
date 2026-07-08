@@ -1,0 +1,1667 @@
+{
+  "schema_version": 1,
+  "name": "Ecowitt generic raw-to-metric alias map",
+  "generated_at_utc": "2026-07-07T17:42:18Z",
+  "target_locale": "fr-FR",
+  "purpose": "Map Ecowitt custom-server raw POST keys to stable metric names, with dynamic sensor families and unknown raw key detection.",
+  "format_notes": [
+    "The first source present and numeric should normally win unless the script explicitly implements source_strategy.",
+    "Most Ecowitt custom-server rain values are sent in inches; piezo rain keys are also treated as inches in observed payloads.",
+    "Keys can vary with gateway, firmware, protocol and paired sensors. Do not use model/stationtype alone as the decoding authority.",
+    "This map is intentionally generous: some keys are from Ecowitt custom upload examples, Home Assistant/Ecowitt integrations and gateway API field names. Unknown-key logging remains important."
+  ],
+  "units": {
+    "C": "degree Celsius",
+    "F": "degree Fahrenheit",
+    "hPa": "hectopascal",
+    "inHg": "inch of mercury",
+    "km/h": "kilometre per hour",
+    "mph": "mile per hour",
+    "m/s": "metre per second",
+    "mm": "millimetre",
+    "inch": "inch",
+    "mm/h": "millimetre per hour",
+    "inch/h": "inch per hour",
+    "%": "percent",
+    "deg": "degree",
+    "W/m2": "watt per square metre",
+    "lux": "lux",
+    "kPa": "kilopascal",
+    "ppm": "parts per million",
+    "ug/m3": "microgram per cubic metre",
+    "V": "volt",
+    "raw": "raw Ecowitt value",
+    "bool01": "0 or 1 boolean-like value",
+    "unix_s": "Unix timestamp in seconds",
+    "s": "seconds"
+  },
+  "profile": {
+    "output_key": "profile",
+    "metadata_fields": {
+      "gateway_model": {
+        "source": "model",
+        "type": "string"
+      },
+      "stationtype": {
+        "source": "stationtype",
+        "type": "string"
+      },
+      "station_firmware_from_stationtype": {
+        "source": "stationtype",
+        "type": "regex",
+        "pattern": "_V(?<version>[0-9.]+)"
+      },
+      "station_time_utc": {
+        "source": "dateutc",
+        "type": "datetime_string"
+      },
+      "gateway_runtime_s": {
+        "source": "runtime",
+        "type": "number",
+        "unit": "s"
+      },
+      "gateway_heap_bytes": {
+        "source": "heap",
+        "type": "integer",
+        "unit": "bytes"
+      },
+      "rf_frequency": {
+        "source": "freq",
+        "type": "string"
+      },
+      "upload_interval_s": {
+        "source": "interval",
+        "type": "integer",
+        "unit": "s"
+      }
+    },
+    "feature_rules": [
+      {
+        "name": "gateway_gw3000",
+        "match_any_regex": [
+          {
+            "key": "model",
+            "pattern": "GW3000|GW3010"
+          },
+          {
+            "key": "stationtype",
+            "pattern": "GW3000|GW3010"
+          }
+        ]
+      },
+      {
+        "name": "gateway_gw2000",
+        "match_any_regex": [
+          {
+            "key": "model",
+            "pattern": "GW2000"
+          },
+          {
+            "key": "stationtype",
+            "pattern": "GW2000"
+          }
+        ]
+      },
+      {
+        "name": "gateway_gw1000_1100",
+        "match_any_regex": [
+          {
+            "key": "model",
+            "pattern": "GW1000|GW1100"
+          },
+          {
+            "key": "stationtype",
+            "pattern": "GW1000|GW1100"
+          }
+        ]
+      },
+      {
+        "name": "ws90_or_wh90_array",
+        "match_any_keys": [
+          "ws90_ver",
+          "ws90cap_volt",
+          "wh90batt",
+          "rrain_piezo",
+          "yrain_piezo"
+        ]
+      },
+      {
+        "name": "piezo_rain",
+        "match_any_keys": [
+          "rrain_piezo",
+          "erain_piezo",
+          "hrain_piezo",
+          "last24hrain_piezo",
+          "drain_piezo",
+          "wrain_piezo",
+          "mrain_piezo",
+          "yrain_piezo",
+          "srain_piezo"
+        ]
+      },
+      {
+        "name": "classic_rain",
+        "match_any_keys": [
+          "rainratein",
+          "eventrainin",
+          "hourlyrainin",
+          "dailyrainin",
+          "weeklyrainin",
+          "monthlyrainin",
+          "yearlyrainin",
+          "totalrainin",
+          "rainratemm",
+          "dailyrainmm",
+          "yearlyrainmm"
+        ]
+      },
+      {
+        "name": "extra_temp_humidity",
+        "match_any_key_regex": [
+          "^temp[1-8][fc]$",
+          "^humidity[1-8]$",
+          "^batt[1-8]$"
+        ]
+      },
+      {
+        "name": "temperature_probe_wn34_like",
+        "match_any_key_regex": [
+          "^tf_ch[1-8]c?$",
+          "^tf_batt[1-8]$"
+        ]
+      },
+      {
+        "name": "soil_moisture",
+        "match_any_key_regex": [
+          "^soilmoisture([1-9]|1[0-6])$",
+          "^soilbatt([1-9]|1[0-6])$",
+          "^soilad([1-9]|1[0-6])$"
+        ]
+      },
+      {
+        "name": "pm25_sensor",
+        "match_any_key_regex": [
+          "^pm25_ch[1-8]$",
+          "^pm25_avg_24h_ch[1-8]$",
+          "^pm25batt[1-8]$"
+        ]
+      },
+      {
+        "name": "co2_air_quality",
+        "match_any_keys": [
+          "tf_co2",
+          "tf_co2c",
+          "humi_co2",
+          "pm25_co2",
+          "pm25_24h_co2",
+          "pm10_co2",
+          "pm10_24h_co2",
+          "co2",
+          "co2_24h",
+          "co2_batt"
+        ]
+      },
+      {
+        "name": "lightning",
+        "match_any_keys": [
+          "lightning",
+          "lightning_mi",
+          "lightning_num",
+          "lightning_time",
+          "wh57batt"
+        ]
+      },
+      {
+        "name": "leaf_wetness",
+        "match_any_key_regex": [
+          "^leafwetness_ch[1-8]$",
+          "^leaf_batt[1-8]$"
+        ]
+      },
+      {
+        "name": "leak_detection",
+        "match_any_key_regex": [
+          "^leak_ch[1-8]$",
+          "^leakbatt[1-8]$"
+        ]
+      },
+      {
+        "name": "laser_distance_lds01_experimental",
+        "match_any_key_regex": [
+          "^lds",
+          "^laser",
+          "^depth",
+          "^air_ch",
+          "^thi_ch",
+          "^data[0-9]+num"
+        ]
+      }
+    ]
+  },
+  "unknown_raw_keys": {
+    "enabled": true,
+    "output_key": "unknown_raw_keys",
+    "include_in_latest_json": true,
+    "log_each_new_key": true,
+    "ignore_keys": [
+      "PASSKEY"
+    ],
+    "ignore_key_regex": [
+      "^_",
+      "^debug_"
+    ],
+    "known_keys_are_collected_from": [
+      "profile.metadata_fields",
+      "fields.*.sources",
+      "dynamic_sensors.*.fields",
+      "known_raw_keys"
+    ],
+    "recommended_log_message": "Unknown Ecowitt raw key detected; add it to ecowitt-map.json if useful."
+  },
+  "known_raw_keys": [
+    "PASSKEY",
+    "stationtype",
+    "runtime",
+    "heap",
+    "dateutc",
+    "freq",
+    "model",
+    "interval",
+    "softwaretype",
+    "runtimetxt",
+    "gustold"
+  ],
+  "fields": {
+    "gateway_runtime_s": {
+      "description": "Gateway uptime/runtime",
+      "target_unit": "s",
+      "decimals": 0,
+      "sources": [
+        {
+          "key": "runtime",
+          "unit": "s"
+        }
+      ]
+    },
+    "gateway_heap_bytes": {
+      "description": "Gateway free heap or heap diagnostic value",
+      "target_unit": "bytes",
+      "decimals": 0,
+      "sources": [
+        {
+          "key": "heap",
+          "unit": "raw"
+        }
+      ]
+    },
+    "upload_interval_s": {
+      "description": "Custom upload interval",
+      "target_unit": "s",
+      "decimals": 0,
+      "sources": [
+        {
+          "key": "interval",
+          "unit": "s"
+        }
+      ]
+    },
+    "vpd_kpa": {
+      "description": "Vapor pressure deficit",
+      "target_unit": "kPa",
+      "decimals": 3,
+      "sources": [
+        {
+          "key": "vpd",
+          "unit": "kPa"
+        }
+      ]
+    },
+    "indoor_temperature_c": {
+      "description": "Gateway/console indoor temperature",
+      "target_unit": "C",
+      "decimals": 2,
+      "sources": [
+        {
+          "key": "tempinc",
+          "unit": "C"
+        },
+        {
+          "key": "tempinf",
+          "unit": "F"
+        },
+        {
+          "key": "indoortempc",
+          "unit": "C"
+        },
+        {
+          "key": "indoortempf",
+          "unit": "F"
+        }
+      ]
+    },
+    "indoor_humidity_pct": {
+      "description": "Gateway/console indoor humidity",
+      "target_unit": "%",
+      "decimals": 0,
+      "sources": [
+        {
+          "key": "humidityin",
+          "unit": "%"
+        },
+        {
+          "key": "indoorhumidity",
+          "unit": "%"
+        },
+        {
+          "key": "humin",
+          "unit": "%"
+        }
+      ]
+    },
+    "temperature_c": {
+      "description": "Primary outdoor temperature after gateway priority selection",
+      "target_unit": "C",
+      "decimals": 2,
+      "sources": [
+        {
+          "key": "tempc",
+          "unit": "C"
+        },
+        {
+          "key": "tempf",
+          "unit": "F"
+        }
+      ]
+    },
+    "humidity_pct": {
+      "description": "Primary outdoor humidity after gateway priority selection",
+      "target_unit": "%",
+      "decimals": 0,
+      "sources": [
+        {
+          "key": "humidity",
+          "unit": "%"
+        }
+      ]
+    },
+    "dewpoint_c": {
+      "description": "Outdoor dew point if supplied by gateway/software",
+      "target_unit": "C",
+      "decimals": 2,
+      "sources": [
+        {
+          "key": "dewpointc",
+          "unit": "C"
+        },
+        {
+          "key": "dewptc",
+          "unit": "C"
+        },
+        {
+          "key": "dewpointf",
+          "unit": "F"
+        },
+        {
+          "key": "dewptf",
+          "unit": "F"
+        }
+      ]
+    },
+    "indoor_dewpoint_c": {
+      "description": "Indoor dew point if supplied",
+      "target_unit": "C",
+      "decimals": 2,
+      "sources": [
+        {
+          "key": "dewpointinc",
+          "unit": "C"
+        },
+        {
+          "key": "dewpointinf",
+          "unit": "F"
+        }
+      ]
+    },
+    "windchill_c": {
+      "description": "Wind chill if supplied",
+      "target_unit": "C",
+      "decimals": 2,
+      "sources": [
+        {
+          "key": "windchillc",
+          "unit": "C"
+        },
+        {
+          "key": "windchillf",
+          "unit": "F"
+        }
+      ]
+    },
+    "heatindex_c": {
+      "description": "Heat index if supplied",
+      "target_unit": "C",
+      "decimals": 2,
+      "sources": [
+        {
+          "key": "heatindexc",
+          "unit": "C"
+        },
+        {
+          "key": "heatindexf",
+          "unit": "F"
+        }
+      ]
+    },
+    "feelslike_c": {
+      "description": "Feels-like/apparent temperature if supplied",
+      "target_unit": "C",
+      "decimals": 2,
+      "sources": [
+        {
+          "key": "feelslikec",
+          "unit": "C"
+        },
+        {
+          "key": "feelslikef",
+          "unit": "F"
+        },
+        {
+          "key": "feelslike",
+          "unit": "C"
+        }
+      ]
+    },
+    "pressure_relative_hpa": {
+      "description": "Relative pressure / sea-level pressure",
+      "target_unit": "hPa",
+      "decimals": 2,
+      "sources": [
+        {
+          "key": "baromrelhpa",
+          "unit": "hPa"
+        },
+        {
+          "key": "relbaro",
+          "unit": "hPa"
+        },
+        {
+          "key": "baromrelin",
+          "unit": "inHg"
+        },
+        {
+          "key": "baromin",
+          "unit": "inHg"
+        }
+      ]
+    },
+    "pressure_absolute_hpa": {
+      "description": "Absolute station pressure",
+      "target_unit": "hPa",
+      "decimals": 2,
+      "sources": [
+        {
+          "key": "baromabshpa",
+          "unit": "hPa"
+        },
+        {
+          "key": "absbaro",
+          "unit": "hPa"
+        },
+        {
+          "key": "baromabsin",
+          "unit": "inHg"
+        }
+      ]
+    },
+    "wind_direction_deg": {
+      "description": "Current wind direction",
+      "target_unit": "deg",
+      "decimals": 0,
+      "sources": [
+        {
+          "key": "winddir",
+          "unit": "deg"
+        }
+      ]
+    },
+    "wind_direction_avg10m_deg": {
+      "description": "10 minute average wind direction",
+      "target_unit": "deg",
+      "decimals": 0,
+      "sources": [
+        {
+          "key": "winddir_avg10m",
+          "unit": "deg"
+        }
+      ]
+    },
+    "wind_speed_kmh": {
+      "description": "Current/average wind speed",
+      "target_unit": "km/h",
+      "decimals": 2,
+      "sources": [
+        {
+          "key": "windspeedkmh",
+          "unit": "km/h"
+        },
+        {
+          "key": "windspeed",
+          "unit": "km/h",
+          "note": "Observed in some derived exports"
+        },
+        {
+          "key": "windspeedmph",
+          "unit": "mph"
+        },
+        {
+          "key": "windspeedms",
+          "unit": "m/s"
+        }
+      ]
+    },
+    "wind_speed_avg10m_kmh": {
+      "description": "10 minute average wind speed",
+      "target_unit": "km/h",
+      "decimals": 2,
+      "sources": [
+        {
+          "key": "windspdkmh_avg10m",
+          "unit": "km/h"
+        },
+        {
+          "key": "windspdmph_avg10m",
+          "unit": "mph"
+        },
+        {
+          "key": "windspdms_avg10m",
+          "unit": "m/s"
+        }
+      ]
+    },
+    "wind_gust_kmh": {
+      "description": "Current gust",
+      "target_unit": "km/h",
+      "decimals": 2,
+      "sources": [
+        {
+          "key": "windgustkmh",
+          "unit": "km/h"
+        },
+        {
+          "key": "windgust",
+          "unit": "km/h",
+          "note": "Observed in some derived exports"
+        },
+        {
+          "key": "windgustmph",
+          "unit": "mph"
+        },
+        {
+          "key": "windgustms",
+          "unit": "m/s"
+        },
+        {
+          "key": "gust",
+          "unit": "km/h"
+        },
+        {
+          "key": "gustmph",
+          "unit": "mph"
+        }
+      ]
+    },
+    "max_daily_gust_kmh": {
+      "description": "Maximum daily gust",
+      "target_unit": "km/h",
+      "decimals": 2,
+      "sources": [
+        {
+          "key": "maxdailygustkmh",
+          "unit": "km/h"
+        },
+        {
+          "key": "maxdailygu",
+          "unit": "km/h"
+        },
+        {
+          "key": "maxdailygust",
+          "unit": "mph"
+        },
+        {
+          "key": "maxdailygustms",
+          "unit": "m/s"
+        }
+      ]
+    },
+    "solar_radiation_wm2": {
+      "description": "Solar irradiance",
+      "target_unit": "W/m2",
+      "decimals": 2,
+      "sources": [
+        {
+          "key": "solarradiation",
+          "unit": "W/m2"
+        }
+      ]
+    },
+    "illuminance_lux": {
+      "description": "Illuminance if supplied",
+      "target_unit": "lux",
+      "decimals": 0,
+      "sources": [
+        {
+          "key": "lightning_lux",
+          "unit": "lux",
+          "note": "Do not confuse with lightning distance; low confidence"
+        },
+        {
+          "key": "solarradiation_lux",
+          "unit": "lux"
+        }
+      ]
+    },
+    "uv_index": {
+      "description": "UV index",
+      "target_unit": "raw",
+      "decimals": 1,
+      "sources": [
+        {
+          "key": "uv",
+          "unit": "raw"
+        },
+        {
+          "key": "UV",
+          "unit": "raw"
+        }
+      ]
+    },
+    "rain_rate_mm_h": {
+      "description": "Rain rate",
+      "target_unit": "mm/h",
+      "decimals": 2,
+      "source_strategy": "prefer_classic_then_piezo",
+      "sources": [
+        {
+          "key": "rainratemm",
+          "unit": "mm/h"
+        },
+        {
+          "key": "rainratein",
+          "unit": "inch/h"
+        },
+        {
+          "key": "rrain_piezo",
+          "unit": "inch/h"
+        },
+        {
+          "key": "rrate_2",
+          "unit": "mm/h"
+        }
+      ]
+    },
+    "rain_event_mm": {
+      "description": "Rain accumulation for current event",
+      "target_unit": "mm",
+      "decimals": 2,
+      "source_strategy": "prefer_classic_then_piezo",
+      "sources": [
+        {
+          "key": "eventrainmm",
+          "unit": "mm"
+        },
+        {
+          "key": "eventrainin",
+          "unit": "inch"
+        },
+        {
+          "key": "erain_piezo",
+          "unit": "inch"
+        },
+        {
+          "key": "erain_2",
+          "unit": "mm"
+        }
+      ]
+    },
+    "rain_hour_mm": {
+      "description": "Rain accumulation for current/last hour",
+      "target_unit": "mm",
+      "decimals": 2,
+      "source_strategy": "prefer_classic_then_piezo",
+      "sources": [
+        {
+          "key": "hourlyrainmm",
+          "unit": "mm"
+        },
+        {
+          "key": "hourlyrainin",
+          "unit": "inch"
+        },
+        {
+          "key": "hrain_piezo",
+          "unit": "inch"
+        },
+        {
+          "key": "hrain_2",
+          "unit": "mm"
+        }
+      ]
+    },
+    "rain_last24h_mm": {
+      "description": "Rain accumulation over last 24 hours, mainly piezo/Wittboy",
+      "target_unit": "mm",
+      "decimals": 2,
+      "sources": [
+        {
+          "key": "last24hrain_piezo",
+          "unit": "inch"
+        },
+        {
+          "key": "rain24hmm",
+          "unit": "mm"
+        },
+        {
+          "key": "rain24hin",
+          "unit": "inch"
+        }
+      ]
+    },
+    "rain_day_mm": {
+      "description": "Daily rain accumulation",
+      "target_unit": "mm",
+      "decimals": 2,
+      "source_strategy": "prefer_classic_then_piezo",
+      "sources": [
+        {
+          "key": "dailyrainmm",
+          "unit": "mm"
+        },
+        {
+          "key": "dailyrainin",
+          "unit": "inch"
+        },
+        {
+          "key": "drain_piezo",
+          "unit": "inch"
+        },
+        {
+          "key": "dailyrain",
+          "unit": "mm"
+        },
+        {
+          "key": "drain_2",
+          "unit": "mm"
+        }
+      ]
+    },
+    "rain_week_mm": {
+      "description": "Weekly rain accumulation",
+      "target_unit": "mm",
+      "decimals": 2,
+      "source_strategy": "prefer_classic_then_piezo",
+      "sources": [
+        {
+          "key": "weeklyrainmm",
+          "unit": "mm"
+        },
+        {
+          "key": "weeklyrainin",
+          "unit": "inch"
+        },
+        {
+          "key": "wrain_piezo",
+          "unit": "inch"
+        },
+        {
+          "key": "weeklyrain",
+          "unit": "mm"
+        },
+        {
+          "key": "wrain_2",
+          "unit": "mm"
+        }
+      ]
+    },
+    "rain_month_mm": {
+      "description": "Monthly rain accumulation",
+      "target_unit": "mm",
+      "decimals": 2,
+      "source_strategy": "prefer_classic_then_piezo",
+      "sources": [
+        {
+          "key": "monthlyrainmm",
+          "unit": "mm"
+        },
+        {
+          "key": "monthlyrainin",
+          "unit": "inch"
+        },
+        {
+          "key": "mrain_piezo",
+          "unit": "inch"
+        },
+        {
+          "key": "monthlyrain",
+          "unit": "mm"
+        },
+        {
+          "key": "mrain_2",
+          "unit": "mm"
+        }
+      ]
+    },
+    "rain_year_mm": {
+      "description": "Yearly rain accumulation",
+      "target_unit": "mm",
+      "decimals": 2,
+      "source_strategy": "prefer_classic_then_piezo",
+      "sources": [
+        {
+          "key": "yearlyrainmm",
+          "unit": "mm"
+        },
+        {
+          "key": "yearlyrainin",
+          "unit": "inch"
+        },
+        {
+          "key": "yrain_piezo",
+          "unit": "inch"
+        },
+        {
+          "key": "yearlyrain",
+          "unit": "mm"
+        },
+        {
+          "key": "yrain_2",
+          "unit": "mm"
+        }
+      ]
+    },
+    "rain_total_mm": {
+      "description": "Total rain accumulation if supplied",
+      "target_unit": "mm",
+      "decimals": 2,
+      "sources": [
+        {
+          "key": "totalrainmm",
+          "unit": "mm"
+        },
+        {
+          "key": "totalrainin",
+          "unit": "inch"
+        },
+        {
+          "key": "rain",
+          "unit": "mm"
+        }
+      ]
+    },
+    "rain_start_detected": {
+      "description": "Piezo rain state/rain started flag",
+      "target_unit": "bool01",
+      "decimals": 0,
+      "sources": [
+        {
+          "key": "srain_piezo",
+          "unit": "bool01"
+        }
+      ]
+    },
+    "ws90_capacitor_voltage_v": {
+      "description": "WS90/Wittboy capacitor voltage",
+      "target_unit": "V",
+      "decimals": 2,
+      "sources": [
+        {
+          "key": "ws90cap_volt",
+          "unit": "V"
+        }
+      ]
+    },
+    "ws90_firmware_version": {
+      "description": "WS90 firmware/version raw number",
+      "target_unit": "raw",
+      "decimals": 0,
+      "sources": [
+        {
+          "key": "ws90_ver",
+          "unit": "raw"
+        }
+      ]
+    },
+    "wh90_battery_v": {
+      "description": "WH90/WS90 battery voltage",
+      "target_unit": "V",
+      "decimals": 2,
+      "sources": [
+        {
+          "key": "wh90batt",
+          "unit": "V"
+        }
+      ]
+    },
+    "wh65_battery_raw": {
+      "description": "WH65/WS69 array battery status",
+      "target_unit": "raw",
+      "decimals": 0,
+      "sources": [
+        {
+          "key": "wh65batt",
+          "unit": "raw"
+        }
+      ]
+    },
+    "wh25_battery_raw": {
+      "description": "WH25 indoor sensor battery status",
+      "target_unit": "raw",
+      "decimals": 0,
+      "sources": [
+        {
+          "key": "wh25batt",
+          "unit": "raw"
+        }
+      ]
+    },
+    "wh26_battery_raw": {
+      "description": "WH26 indoor sensor battery status",
+      "target_unit": "raw",
+      "decimals": 0,
+      "sources": [
+        {
+          "key": "wh26batt",
+          "unit": "raw"
+        }
+      ]
+    },
+    "wh40_battery_raw": {
+      "description": "WH40 rain gauge battery status",
+      "target_unit": "raw",
+      "decimals": 0,
+      "sources": [
+        {
+          "key": "wh40batt",
+          "unit": "raw"
+        }
+      ]
+    },
+    "wh57_battery_raw": {
+      "description": "WH57 lightning sensor battery status",
+      "target_unit": "raw",
+      "decimals": 0,
+      "sources": [
+        {
+          "key": "wh57batt",
+          "unit": "raw"
+        }
+      ]
+    },
+    "wh68_battery_raw": {
+      "description": "WH68/WS68 array battery status",
+      "target_unit": "raw",
+      "decimals": 0,
+      "sources": [
+        {
+          "key": "wh68batt",
+          "unit": "raw"
+        }
+      ]
+    },
+    "wh80_battery_raw": {
+      "description": "WH80/WS80 array battery status",
+      "target_unit": "raw",
+      "decimals": 0,
+      "sources": [
+        {
+          "key": "wh80batt",
+          "unit": "raw"
+        }
+      ]
+    },
+    "console_battery_raw": {
+      "description": "Console backup battery status if supplied",
+      "target_unit": "raw",
+      "decimals": 0,
+      "sources": [
+        {
+          "key": "console_batt",
+          "unit": "raw"
+        },
+        {
+          "key": "consolebatt",
+          "unit": "raw"
+        }
+      ]
+    },
+    "lightning_count": {
+      "description": "Total/period lightning strike count reported by WH57",
+      "target_unit": "raw",
+      "decimals": 0,
+      "sources": [
+        {
+          "key": "lightning_num",
+          "unit": "raw"
+        }
+      ]
+    },
+    "lightning_distance_km": {
+      "description": "Distance to last lightning strike in km, when gateway sends metric field",
+      "target_unit": "km",
+      "decimals": 1,
+      "sources": [
+        {
+          "key": "lightning",
+          "unit": "km"
+        }
+      ]
+    },
+    "lightning_distance_mi": {
+      "description": "Distance to last lightning strike in miles, when supplied",
+      "target_unit": "mi",
+      "decimals": 1,
+      "sources": [
+        {
+          "key": "lightning_mi",
+          "unit": "mi"
+        }
+      ]
+    },
+    "lightning_time_unix_s": {
+      "description": "Unix timestamp of last lightning strike",
+      "target_unit": "unix_s",
+      "decimals": 0,
+      "sources": [
+        {
+          "key": "lightning_time",
+          "unit": "unix_s"
+        }
+      ]
+    },
+    "co2_temperature_c": {
+      "description": "WH45/WH46 temperature",
+      "target_unit": "C",
+      "decimals": 2,
+      "sources": [
+        {
+          "key": "tf_co2c",
+          "unit": "C"
+        },
+        {
+          "key": "tf_co2",
+          "unit": "F"
+        }
+      ]
+    },
+    "co2_humidity_pct": {
+      "description": "WH45/WH46 humidity",
+      "target_unit": "%",
+      "decimals": 0,
+      "sources": [
+        {
+          "key": "humi_co2",
+          "unit": "%"
+        }
+      ]
+    },
+    "co2_pm25_ugm3": {
+      "description": "WH45/WH46 PM2.5",
+      "target_unit": "ug/m3",
+      "decimals": 1,
+      "sources": [
+        {
+          "key": "pm25_co2",
+          "unit": "ug/m3"
+        }
+      ]
+    },
+    "co2_pm25_24h_ugm3": {
+      "description": "WH45/WH46 PM2.5 24h average",
+      "target_unit": "ug/m3",
+      "decimals": 1,
+      "sources": [
+        {
+          "key": "pm25_24h_co2",
+          "unit": "ug/m3"
+        }
+      ]
+    },
+    "co2_pm10_ugm3": {
+      "description": "WH45/WH46 PM10",
+      "target_unit": "ug/m3",
+      "decimals": 1,
+      "sources": [
+        {
+          "key": "pm10_co2",
+          "unit": "ug/m3"
+        }
+      ]
+    },
+    "co2_pm10_24h_ugm3": {
+      "description": "WH45/WH46 PM10 24h average",
+      "target_unit": "ug/m3",
+      "decimals": 1,
+      "sources": [
+        {
+          "key": "pm10_24h_co2",
+          "unit": "ug/m3"
+        }
+      ]
+    },
+    "co2_pm1_ugm3": {
+      "description": "WH46 PM1, if supplied",
+      "target_unit": "ug/m3",
+      "decimals": 1,
+      "sources": [
+        {
+          "key": "pm1_co2",
+          "unit": "ug/m3"
+        }
+      ]
+    },
+    "co2_pm1_24h_ugm3": {
+      "description": "WH46 PM1 24h average, if supplied",
+      "target_unit": "ug/m3",
+      "decimals": 1,
+      "sources": [
+        {
+          "key": "pm1_24h_co2",
+          "unit": "ug/m3"
+        }
+      ]
+    },
+    "co2_pm4_ugm3": {
+      "description": "WH46 PM4, if supplied",
+      "target_unit": "ug/m3",
+      "decimals": 1,
+      "sources": [
+        {
+          "key": "pm4_co2",
+          "unit": "ug/m3"
+        }
+      ]
+    },
+    "co2_pm4_24h_ugm3": {
+      "description": "WH46 PM4 24h average, if supplied",
+      "target_unit": "ug/m3",
+      "decimals": 1,
+      "sources": [
+        {
+          "key": "pm4_24h_co2",
+          "unit": "ug/m3"
+        }
+      ]
+    },
+    "co2_ppm": {
+      "description": "CO2 concentration",
+      "target_unit": "ppm",
+      "decimals": 0,
+      "sources": [
+        {
+          "key": "co2",
+          "unit": "ppm"
+        },
+        {
+          "key": "CO2IN",
+          "unit": "ppm"
+        }
+      ]
+    },
+    "co2_24h_ppm": {
+      "description": "CO2 24h average",
+      "target_unit": "ppm",
+      "decimals": 0,
+      "sources": [
+        {
+          "key": "co2_24h",
+          "unit": "ppm"
+        }
+      ]
+    },
+    "co2_battery_raw": {
+      "description": "WH45/WH46 battery status",
+      "target_unit": "raw",
+      "decimals": 0,
+      "sources": [
+        {
+          "key": "co2_batt",
+          "unit": "raw"
+        }
+      ]
+    }
+  },
+  "dynamic_sensors": {
+    "temp_humidity": {
+      "description": "WH31/WN31/WN32-like extra temperature and humidity channels",
+      "channels": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "output_key": "temp_humidity_sensors",
+      "fields": {
+        "temperature_c": {
+          "target_unit": "C",
+          "decimals": 2,
+          "sources": [
+            {
+              "key_pattern": "temp{channel}c",
+              "unit": "C"
+            },
+            {
+              "key_pattern": "temp{channel}f",
+              "unit": "F"
+            }
+          ]
+        },
+        "humidity_pct": {
+          "target_unit": "%",
+          "decimals": 0,
+          "sources": [
+            {
+              "key_pattern": "humidity{channel}",
+              "unit": "%"
+            }
+          ]
+        },
+        "dewpoint_c": {
+          "target_unit": "C",
+          "decimals": 2,
+          "sources": [
+            {
+              "key_pattern": "dewpoint{channel}c",
+              "unit": "C"
+            },
+            {
+              "key_pattern": "dewpoint{channel}f",
+              "unit": "F"
+            }
+          ]
+        },
+        "battery_raw": {
+          "target_unit": "raw",
+          "decimals": 0,
+          "sources": [
+            {
+              "key_pattern": "batt{channel}",
+              "unit": "raw"
+            }
+          ]
+        },
+        "signal_pct": {
+          "target_unit": "%",
+          "decimals": 0,
+          "sources": [
+            {
+              "key_pattern": "signal{channel}",
+              "unit": "%"
+            }
+          ]
+        }
+      }
+    },
+    "temperature_probe": {
+      "description": "WN34/WN30/WN36-like temperature-only probes, including pool/soil/water probes",
+      "channels": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "output_key": "temperature_probe_sensors",
+      "fields": {
+        "temperature_c": {
+          "target_unit": "C",
+          "decimals": 2,
+          "sources": [
+            {
+              "key_pattern": "tf_ch{channel}c",
+              "unit": "C"
+            },
+            {
+              "key_pattern": "tf_ch{channel}",
+              "unit": "F"
+            }
+          ]
+        },
+        "battery_v": {
+          "target_unit": "V",
+          "decimals": 2,
+          "sources": [
+            {
+              "key_pattern": "tf_batt{channel}",
+              "unit": "V"
+            }
+          ]
+        }
+      }
+    },
+    "soil_moisture": {
+      "description": "WH51 soil moisture channels",
+      "channels": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ],
+      "output_key": "soil_moisture_sensors",
+      "fields": {
+        "moisture_pct": {
+          "target_unit": "%",
+          "decimals": 0,
+          "sources": [
+            {
+              "key_pattern": "soilmoisture{channel}",
+              "unit": "%"
+            }
+          ]
+        },
+        "adc_raw": {
+          "target_unit": "raw",
+          "decimals": 0,
+          "sources": [
+            {
+              "key_pattern": "soilad{channel}",
+              "unit": "raw"
+            }
+          ]
+        },
+        "battery_v": {
+          "target_unit": "V",
+          "decimals": 2,
+          "sources": [
+            {
+              "key_pattern": "soilbatt{channel}",
+              "unit": "V"
+            }
+          ]
+        }
+      }
+    },
+    "leaf_wetness": {
+      "description": "WN35 leaf wetness channels",
+      "channels": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "output_key": "leaf_wetness_sensors",
+      "fields": {
+        "wetness_raw": {
+          "target_unit": "raw",
+          "decimals": 0,
+          "sources": [
+            {
+              "key_pattern": "leafwetness_ch{channel}",
+              "unit": "raw"
+            }
+          ]
+        },
+        "battery_v": {
+          "target_unit": "V",
+          "decimals": 2,
+          "sources": [
+            {
+              "key_pattern": "leaf_batt{channel}",
+              "unit": "V"
+            }
+          ]
+        }
+      }
+    },
+    "pm25": {
+      "description": "WH41/WH43 PM2.5 channels",
+      "channels": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "output_key": "pm25_sensors",
+      "fields": {
+        "pm25_ugm3": {
+          "target_unit": "ug/m3",
+          "decimals": 1,
+          "sources": [
+            {
+              "key_pattern": "pm25_ch{channel}",
+              "unit": "ug/m3"
+            }
+          ]
+        },
+        "pm25_24h_ugm3": {
+          "target_unit": "ug/m3",
+          "decimals": 1,
+          "sources": [
+            {
+              "key_pattern": "pm25_avg_24h_ch{channel}",
+              "unit": "ug/m3"
+            }
+          ]
+        },
+        "battery_raw": {
+          "target_unit": "raw",
+          "decimals": 0,
+          "sources": [
+            {
+              "key_pattern": "pm25batt{channel}",
+              "unit": "raw"
+            }
+          ]
+        }
+      }
+    },
+    "leak": {
+      "description": "WH55/WH55-like water leak sensors",
+      "channels": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "output_key": "leak_sensors",
+      "fields": {
+        "leak_detected": {
+          "target_unit": "bool01",
+          "decimals": 0,
+          "sources": [
+            {
+              "key_pattern": "leak_ch{channel}",
+              "unit": "bool01"
+            }
+          ]
+        },
+        "battery_raw": {
+          "target_unit": "raw",
+          "decimals": 0,
+          "sources": [
+            {
+              "key_pattern": "leakbatt{channel}",
+              "unit": "raw"
+            }
+          ]
+        }
+      }
+    },
+    "pm10_multi_channel_experimental": {
+      "description": "Potential PM10 multi-channel keys, less commonly seen than WH45/WH46 fixed CO2 keys",
+      "confidence": "low",
+      "channels": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "output_key": "pm10_sensors",
+      "fields": {
+        "pm10_ugm3": {
+          "target_unit": "ug/m3",
+          "decimals": 1,
+          "sources": [
+            {
+              "key_pattern": "pm10_ch{channel}",
+              "unit": "ug/m3"
+            }
+          ]
+        },
+        "pm10_24h_ugm3": {
+          "target_unit": "ug/m3",
+          "decimals": 1,
+          "sources": [
+            {
+              "key_pattern": "pm10_avg_24h_ch{channel}",
+              "unit": "ug/m3"
+            }
+          ]
+        }
+      }
+    },
+    "laser_distance_lds01_experimental": {
+      "description": "LDS01/WH54-like laser distance sensor. Field names are not consistently documented in custom-upload examples yet; keep unknown-key logging active.",
+      "confidence": "low",
+      "channels": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "output_key": "laser_distance_sensors",
+      "fields": {
+        "air_distance_mm": {
+          "target_unit": "mm",
+          "decimals": 0,
+          "sources": [
+            {
+              "key_pattern": "air_ch{channel}",
+              "unit": "mm"
+            },
+            {
+              "key_pattern": "lds_air_ch{channel}",
+              "unit": "mm"
+            }
+          ]
+        },
+        "depth_mm": {
+          "target_unit": "mm",
+          "decimals": 0,
+          "sources": [
+            {
+              "key_pattern": "thi_ch{channel}",
+              "unit": "mm",
+              "note": "Observed in LDS01 verbose payload; likely depth/thickness value"
+            },
+            {
+              "key_pattern": "depth_ch{channel}",
+              "unit": "mm"
+            },
+            {
+              "key_pattern": "lds_depth_ch{channel}",
+              "unit": "mm"
+            }
+          ]
+        },
+        "heater_count": {
+          "target_unit": "raw",
+          "decimals": 0,
+          "sources": [
+            {
+              "key_pattern": "heater_ch{channel}",
+              "unit": "raw"
+            },
+            {
+              "key_pattern": "lds_heat_ch{channel}",
+              "unit": "raw"
+            }
+          ]
+        },
+        "battery_raw": {
+          "target_unit": "raw",
+          "decimals": 0,
+          "sources": [
+            {
+              "key_pattern": "ldsbatt{channel}",
+              "unit": "V"
+            },
+            {
+              "key_pattern": "lds_batt{channel}",
+              "unit": "raw"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "experimental_or_low_confidence": {
+    "lds01": {
+      "reason": "Search results confirm LDS01 reports air value, depth value, heater-on counter and battery level, but not stable custom-upload key names.",
+      "recommended_handling": "Keep unknown_raw_keys enabled; once first raw payload arrives, add the exact LDS01 keys here."
+    },
+    "units_to_verify_by_payload": [
+      "lightning distance may appear as lightning or lightning_mi depending unit settings",
+      "battery fields can be raw status, voltage or percentage depending sensor family"
+    ]
+  },
+  "known_key_patterns": [
+    "^temp([1-8])f$",
+    "^temp([1-8])c$",
+    "^humidity([1-8])$",
+    "^batt([1-8])$",
+    "^signal([1-8])$",
+    "^tf_ch([1-8])c?$",
+    "^tf_batt([1-8])$",
+    "^soilmoisture([1-9]|1[0-6])$",
+    "^soilad([1-9]|1[0-6])$",
+    "^soilbatt([1-9]|1[0-6])$",
+    "^leafwetness_ch([1-8])$",
+    "^leaf_batt([1-8])$",
+    "^pm25_ch([1-8])$",
+    "^pm25_avg_24h_ch([1-8])$",
+    "^pm25batt([1-8])$",
+    "^leak_ch([1-8])$",
+    "^leakbatt([1-8])$",
+    "^pm10_ch([1-4])$",
+    "^pm10_avg_24h_ch([1-4])$",
+    "^air_ch([1-4])$",
+    "^thi_ch([1-4])$",
+    "^ldsbatt([1-4])$",
+    "^lds_batt([1-4])$"
+  ],
+  "self_test_with_user_latest_json": {
+    "tested_raw_key_count": 37,
+    "unknown_keys_after_mapping": [],
+    "note": "This is informational only and can be removed from production mapping if desired."
+  }
+}
